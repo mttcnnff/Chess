@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Rect, Layer, Stage, Text } from 'react-konva';
+import { Rect, Layer, Stage, Text, Image } from 'react-konva';
 import ChessBoard from './components/chess_board';
 import ChessPieces from './components/chess_pieces';
 
@@ -23,6 +23,30 @@ console.log(game);
 
 export default function chess_init(root) {
   ReactDOM.render(<ChessGame />, root);
+}
+
+class YodaImage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      image: null,
+    };
+  }
+  componentDidMount() {
+    const image = new window.Image();
+    image.src = "images/pieces/Chess_bdt45.svg";
+    image.onload = () => {
+      // setState will redraw layer
+      // because "image" property is changed
+      this.setState({
+        image: image
+      });
+    };
+  }
+
+  render() {
+    return <Image image={this.state.image} x={100} y={100} width={100} height={100} />;
+  }
 }
 
 class ChessGame extends React.Component {

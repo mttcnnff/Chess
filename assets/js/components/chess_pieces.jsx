@@ -116,7 +116,7 @@ class ChessPiecesComponent extends React.Component {
   }
 
   toggleSelection(piece, row, col) {
-    if (!isValidCell({row: row, col: col})) return;
+    if (_.isUndefined(piece) || !isValidCell({row: row, col: col})) return;
     let i = getSpace({row: row, col: col});
     if (this.state.selectedPiece) {
       this.setState((prevState,props) => {
@@ -147,6 +147,7 @@ class ChessPiecesComponent extends React.Component {
                     onMouseLeave={() => this.clearPieces(piece)}
                     onClick={() => this.toggleSelection(piece, row, col)}
                     isValid={this.state.validPieces.includes(i)}
+                    isSelected={this.state.selectedPiece === i}
               />
     });
     return ( pieces );
