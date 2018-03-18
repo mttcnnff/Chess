@@ -12,7 +12,7 @@ class PieceImage extends React.Component {
       size: props.size,
       onMouseEnter: props.onMouseEnter,
       onMouseLeave: props.onMouseLeave,
-      onClick: props.onClick
+      onClick: props.onClick,
     };
   }
 
@@ -30,6 +30,7 @@ class PieceImage extends React.Component {
 
   render() {
     return <Image 
+              key={this.state.src}
               image={this.state.image} 
               x={this.state.x} 
               y={this.state.y} 
@@ -42,29 +43,30 @@ class PieceImage extends React.Component {
 }
 
 export default function ChessPiece(props) {
-  //onClick={() => props.onClick(props.piece, props.row, props.col)}
-  let bckRect = <Rect key={props.i}
+
+  let bckRect = <Rect key={"bckRect" + props.i}
                   x={props.col * props.size}
                   y={props.row * props.size}
                   width={props.size}
                   height={props.size}
                   fill={props.piece ? "red" : "green"}
-                  opacity={props.isValid == true ? .50 : 0}
-                  onMouseEnter={props.piece ? () => props.onMouseEnter(props.piece, props.row, props.col) : () => {}}
+                  fillEnabled={props.isValid}
+                  opacity={.5}
+                  onMouseEnter={props.piece ? () => props.onMouseEnter(props.row, props.col) : () => {}}
                   onMouseLeave={() => props.onMouseLeave()}
-                  onClick={() => props.onClick(props.piece, props.row, props.col)}
+                  onClick={() => props.onClick(props.row, props.col)}
                   />
   let pieceImage;
-
   if (props.piece !== "") {
     pieceImage = <PieceImage 
+                    key={"pieceImage" + props.i}
                     src={"images/pieces/" + props.color + "/" + props.piece + ".svg"} 
                     x={props.col * props.size} 
                     y={props.row * props.size} 
-                    size={props.size} 
-                    onMouseEnter={props.piece ? () => props.onMouseEnter(props.piece, props.row, props.col) : () => {}}
+                    size={props.size}
+                    onMouseEnter={props.piece ? () => props.onMouseEnter(props.row, props.col) : () => {}}
                     onMouseLeave={() => props.onMouseLeave()}
-                    onClick={() => props.onClick(props.piece, props.row, props.col)} />
+                    onClick={() => props.onClick(props.row, props.col)} />
   }
   
   return (

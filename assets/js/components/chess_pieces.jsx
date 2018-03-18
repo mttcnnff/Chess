@@ -99,7 +99,12 @@ class ChessPiecesComponent extends React.Component {
     };
   }
 
-  setValidPieces(piece, row, col) {
+  setValidPieces(row, col) {
+    let piece = this.state.pieces[getSpace({row: row, col: col})];
+    if (_.isUndefined(piece)) {
+      this.setState({validPieces: []});
+      return;
+    }
     if (this.state.selectedPiece == null) {
       this.setState((prevState,props) => {
         return {validPieces: this.filterValidPieces(piece, this.validPieceFunctions[piece.piece](piece, row, col))}
@@ -115,19 +120,30 @@ class ChessPiecesComponent extends React.Component {
     }
   }
 
-  toggleSelection(piece, row, col) {
-    if (_.isUndefined(piece) || !isValidCell({row: row, col: col})) return;
-    let i = getSpace({row: row, col: col});
-    if (this.state.selectedPiece) {
-      this.setState((prevState,props) => {
-        return {selectedPiece: null}
-      });
-      this.setValidPieces(piece, row, col);
+  move(spaceFrom, spaceTo) {
+    let fromPiece = this.state.pieces[spaceFrom];
+    fromPiece.beenMoved = true;
+    let toPiece = this.state.pieces[spaceTo];
+    let newPieces = this.state.pieces;
+    newPieces[spaceFrom] = toPiece;
+    newPieces[spaceTo] = fromPiece;
+    this.setState({pieces: newPieces});
+  }
+
+
+  handleClick(row, col) {
+    if (!isValidCell({row: row, col: col})) return;
+    let cell = getSpace({row: row, col: col});
+
+    if (this.state.validPieces.includes(cell)) {
+      console.log("Move");
+      this.move(this.state.selectedPiece, cell);
+    } else if (this.state.selectedPiece) {
+      this.setState({selectedPiece: null});
     } else {
-      this.setState((prevState,props) => {
-        return {selectedPiece: i}
-      });
+      this.setState({selectedPiece: cell});
     }
+    this.setValidPieces(row, col);
   }
 
   render() {
@@ -143,11 +159,10 @@ class ChessPiecesComponent extends React.Component {
                     size={this.state.spaceSize} 
                     color={piece ? piece.color: ''}
                     key={"piece"+i}
-                    onMouseEnter={() => this.setValidPieces(piece, row, col)}
+                    onMouseEnter={() => this.setValidPieces(row, col)}
                     onMouseLeave={() => this.clearPieces(piece)}
-                    onClick={() => this.toggleSelection(piece, row, col)}
+                    onClick={() => this.handleClick(row, col)}
                     isValid={this.state.validPieces.includes(i)}
-                    isSelected={this.state.selectedPiece === i}
               />
     });
     return ( pieces );
