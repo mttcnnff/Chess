@@ -121,13 +121,15 @@ class ChessPiecesComponent extends React.Component {
   }
 
   move(spaceFrom, spaceTo) {
-    let fromPiece = this.state.pieces[spaceFrom];
-    fromPiece.beenMoved = true;
-    let toPiece = this.state.pieces[spaceTo];
-    let newPieces = this.state.pieces;
-    newPieces[spaceFrom] = toPiece;
-    newPieces[spaceTo] = fromPiece;
-    this.setState({pieces: newPieces});
+    console.log(this.props);
+    let newPieces = this.state.pieces.slice();
+    newPieces[spaceFrom].beenMoved = true;
+    let temp = newPieces[spaceTo];
+    newPieces[spaceTo] = newPieces[spaceFrom];
+    newPieces[spaceFrom] = temp;
+    this.setState({pieces: newPieces, selectedPiece: null});
+    console.log(this.state.pieces[spaceFrom]);
+    console.log(this.state.pieces[spaceTo]);
   }
 
 
@@ -146,19 +148,23 @@ class ChessPiecesComponent extends React.Component {
     this.setValidPieces(row, col);
   }
 
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
+  }
+
   render() {
     let pieces = this.state.pieces.map((piece, i) => {
       const row = Math.floor(i/8);
       const col = i%8;
+      const p = piece ? piece.piece : "empty";
       return <ChessPiece
-                    key={i}
+                    key={p + row + col}
                     i={i}
                     row={row} 
                     col={col} 
                     piece={piece ? piece.piece: ''} 
                     size={this.state.spaceSize} 
                     color={piece ? piece.color: ''}
-                    key={"piece"+i}
                     onMouseEnter={() => this.setValidPieces(row, col)}
                     onMouseLeave={() => this.clearPieces(piece)}
                     onClick={() => this.handleClick(row, col)}

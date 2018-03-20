@@ -16,6 +16,7 @@ class PieceImage extends React.Component {
     };
   }
 
+
   componentDidMount() {
     const image = new window.Image();
     image.src = this.state.src;
@@ -30,7 +31,6 @@ class PieceImage extends React.Component {
 
   render() {
     return <Image 
-              key={this.state.src}
               image={this.state.image} 
               x={this.state.x} 
               y={this.state.y} 
@@ -50,16 +50,18 @@ export default function ChessPiece(props) {
                   width={props.size}
                   height={props.size}
                   fill={props.piece ? "red" : "green"}
-                  fillEnabled={props.isValid}
                   opacity={.5}
+                  fillEnabled={props.isValid}
                   onMouseEnter={props.piece ? () => props.onMouseEnter(props.row, props.col) : () => {}}
                   onMouseLeave={() => props.onMouseLeave()}
                   onClick={() => props.onClick(props.row, props.col)}
                   />
   let pieceImage;
   if (props.piece !== "") {
+    pieceImage = 
+    <Text text={props.piece} x={props.col * props.size} y={props.row * props.size} />
     pieceImage = <PieceImage 
-                    key={"pieceImage" + props.i}
+                    key={props.color + props.piece + props.row + props.col}
                     src={"images/pieces/" + props.color + "/" + props.piece + ".svg"} 
                     x={props.col * props.size} 
                     y={props.row * props.size} 
