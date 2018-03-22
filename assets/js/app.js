@@ -19,12 +19,17 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+import socket from "./socket";
 
-import chess_init from "./chess";
+import game_init from "./chess";
 
 function start() {
-	let root = document.getElementById('root');
-	if (root) {chess_init(root)};
+  let root = document.getElementById('root');
+  if (root) {
+    let channel = socket.channel("games:" + window.gameName, {});
+    game_init(root, channel);
+  }
+
 }
 
 $(start);

@@ -1,0 +1,11 @@
+<div class="row">
+  <div class="col">
+    <h1>Chess Game: <%= @game %></h1>
+    <script>
+      window.gameName = "<%= @game %>";
+    </script>
+    <div id="root">
+      <p>Chess is not yet loaded...</p>
+    </div>
+  </div>
+</div>

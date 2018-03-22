@@ -21,20 +21,29 @@ console.log(game);
 
 
 
-export default function chess_init(root) {
-  ReactDOM.render(<ChessGame />, root);
+export default function chess_init(root, channel) {
+  ReactDOM.render(<ChessGame channel={channel} />, root);
 }
 
 class ChessGame extends React.Component {
   constructor(props) {
     super(props);
+    this.channel = props.channel;
     this.state = {
       pieces: game,
       turn: false,
       validPieces: [],
       boardSize: 400
     };
+    this.channel.join()
+			.receive("ok", this.gotView.bind(this))
+			.receive("error", resp => { console.log("Unable to join", resp) });
   }
+
+  gotView(view) {
+		console.log("New view", view)
+		this.setState(view.game)
+	}
 
   render() {
     return (
