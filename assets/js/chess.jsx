@@ -17,7 +17,6 @@ let game = _.map(initialBoard, (piece, i) => {
     return {piece: piece, color: i < 32 ? "white" : "black", dir: i < 32 ? 1 : -1, beenMoved: false}
   }
 });
-console.log(game);
 
 
 
