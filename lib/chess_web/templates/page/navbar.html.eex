@@ -5,12 +5,7 @@
           Logged in as: <%= @current_user.name %> 
         </span>
         <div class="ml-auto nav-item">
-          <%= if @current_user.role.name == "Manager" do %>
-            <%= link "Manage", to: "/", class: "btn btn-outline-light btn-xs" %>
-          <% else %>
-            <%= link "Todos", to: "/todo", class: "btn btn-outline-light btn-xs" %>
-          <% end %> 
-          <%= link "My Profile", to: "/profile", class: "btn btn-outline-light btn-xs" %>
+          <%= link "Account", to: "/account", class: "btn btn-outline-light btn-xs" %>
           <%= link "Log Out", to: "/session", method: :delete, class: "btn btn-outline-light btn-xs" %>
         </div>
    <% end %>
