@@ -15,9 +15,4 @@ defmodule ChessWeb.UserView do
       email: user.email,
       name: user.name}
   end
-
-  def render("scripts.html", _assigns) do
-    ~s{<script>require("/js/js/test").Test.run()</script>}
-    |> raw
-  end
 end

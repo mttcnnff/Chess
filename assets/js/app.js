@@ -11,7 +11,11 @@
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-import "phoenix_html"
+import "phoenix_html";
+import chess_init from "./chess";
+import MainView from './views/main';
+import loadView from './views/loader';
+
 
 // Import local files
 //
@@ -20,7 +24,31 @@ import "phoenix_html"
 
 // import socket from "./socket"
 
-import chess_init from "./chess";
+// web/static/js/app.js
+
+function handleDOMContentLoaded() {
+  // Get the current view name
+  const viewName = document.getElementsByTagName('body')[0].dataset.jsViewName;
+  // const vN = document.getElementsByTagName('body')[0].dataset.viewName;
+  // const tN = document.getElementsByTagName('body')[0].dataset.templateName;
+  // console.log(vN);
+  // console.log(tN);
+
+
+  // Load view class and mount it
+  const ViewClass = loadView(viewName);
+  const view = new ViewClass();
+  view.mount();
+
+  window.currentView = view;
+}
+
+function handleDocumentUnload() {
+  window.currentView.unmount();
+}
+
+window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
+window.addEventListener('unload', handleDocumentUnload, false);
 
 function start() {
 	let root = document.getElementById('root');
