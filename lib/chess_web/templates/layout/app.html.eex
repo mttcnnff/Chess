@@ -16,6 +16,7 @@
     data-view-name="<%= view_name(@conn) %>"
     data-template-name="<%= template_name(@view_template) %>">
 
+    <%= render_gon_script(@conn) %>
     <%= render ChessWeb.PageView, "navbar.html", assigns %>
     <div class="container-fluid">
         <%= if get_flash(@conn, :info) do %>

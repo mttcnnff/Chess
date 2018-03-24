@@ -38,6 +38,7 @@ defmodule ChessWeb.Endpoint do
     key: "_chess_key",
     signing_salt: "zLxO6o4r"
 
+  plug PhoenixGon.Pipeline
   plug ChessWeb.Router
 
   @doc """

@@ -1,26 +1,22 @@
-<%= if @current_user do %>
- <%= render "home.html", assigns %>
-<% else %>
-  <div class="row">
-    <div class="col">
-      <div class="jumbotron">
-        <h1 class="display-4">Chess!</h1>
-        <p class="lead">Checkmate.</p>
-      </div>
-    </div>
-    <div class="col">
-      <h1>Log In</h1>
-      <%= form_tag("/session", method: :post) do %>
-          <div class="form-group">
-            Email
-            <input type="email" name="email" placeholder="user@example.com" >
-          </div>
-          <!-- passwords come later -->
-          <div class="form-group">
-            <button class="btn btn-primary">Log in</button>
-            <%=  link "Register", to: user_path(@conn, :new) %>
-          </div>
-        <% end %>
+<div class="row">
+  <div class="col">
+    <div class="jumbotron">
+      <h1 class="display-4">Chess!</h1>
+      <p class="lead">Checkmate.</p>
     </div>
   </div>
-<% end %>
+  <div class="col">
+    <h1>Log In</h1>
+    <%= form_tag("/session", method: :post) do %>
+        <div class="form-group">
+          Email
+          <input type="email" name="email" placeholder="user@example.com" >
+        </div>
+        <!-- passwords come later -->
+        <div class="form-group">
+          <button class="btn btn-primary">Log in</button>
+          <%=  link "Register", to: user_path(@conn, :new) %>
+        </div>
+      <% end %>
+  </div>
+</div>

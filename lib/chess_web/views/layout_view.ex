@@ -1,6 +1,8 @@
 defmodule ChessWeb.LayoutView do
   use ChessWeb, :view
 
+  import PhoenixGon.View
+
   @doc """
   Generates name for the JavaScript view we want to use
   in this combination of view/template.

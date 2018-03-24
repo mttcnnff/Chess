@@ -43,6 +43,10 @@ function handleDOMContentLoaded() {
   window.currentView = view;
 }
 
+function hi() {
+  console.log("HI");
+}
+
 function handleDocumentUnload() {
   window.currentView.unmount();
 }
