@@ -3,6 +3,8 @@ defmodule ChessWeb.GameController do
 
   alias Chess.Matches
   alias Chess.Matches.Game
+  alias Chess.Accounts
+  alias Chess.Accounts.User
 
   action_fallback ChessWeb.FallbackController
 
@@ -40,39 +42,51 @@ defmodule ChessWeb.GameController do
     end
   end
 
-  def join_named_game(conn, %{"game_name" => game_name} = _params) do
-    result = Matches.get_game_by_name(game_name)
-    case result do
+  def join_named_game(conn, %{"game_name" => game_name, "current_user" => current_user_name} = _params) do
+    current_user = Accounts.get_user_by_name(current_user_name)
+    game = Matches.get_named_game_to_join(current_user.id, game_name)
+
+    case game do
       nil -> 
         conn
-        |> send_resp(:not_found, "Game not found.")
+        |> send_resp(:not_found, "Couldn't find an open game by that name!")
       _ -> 
+        Matches.update_game(game, %{white_id: current_user.id})
         conn
-        |> send_resp(:not_found, "Game was found, but not joined.")
+        |> send_resp(:ok, "Game joined!")
     end
   end
 
-  def create_named_game(conn, %{"game_name" => game_name} = _params) do
-    IO.puts("#{inspect(game_name)}")
-    # game_name = params["game_name"]
-    # result = Matches.get_game_by_name(game_name)
-    # case result do
-    #   nil -> 
-    #     conn
-    #     |> send_resp(:created, "Game not created... yet.")
-    #   _ -> 
-    #     conn
-    #     |> send_resp(:no_content, "Game Already Exists.")
-    # end
+  def create_named_game(conn, %{"game_name" => game_name, "current_user" => current_user_name} = _params) do
+    current_user = Accounts.get_user_by_name(current_user_name)
+    game_params = %{name: game_name, black_id: current_user.id}
 
-    conn
-    |> send_resp(:created, "Game not created... yet.")
+    case Matches.create_game(game_params) do
+      {:ok, %Game{} = game} ->
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", game_path(conn, :show, game))
+        |> render("show.json", game: game)
+      {:error, %Ecto.Changeset{} = changeset} -> 
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(ChessWeb.ChangesetView, "error.json", %{changeset: changeset})
+    end
   end
 
-  # def join_random_game(conn, params) do
-  #   IO.puts("#{inspect(params)}")
-  #   conn
-  #   |> redirect(to: page_path(conn, :index))
-  # end
+  def join_random_game(conn, %{"current_user" => current_user_name} = _params) do
+    current_user = Accounts.get_user_by_name(current_user_name)
+    game = Matches.get_random_game_to_join(current_user.id)
+
+    case game do
+      nil -> 
+        conn
+        |> send_resp(:not_found, "Couldn't find an open game! Try creating your own and waiting for someone to join!")
+      _ -> 
+        Matches.update_game(game, %{white_id: current_user.id})
+        conn
+        |> send_resp(:ok, "Game joined!")
+    end    
+  end
 
 end

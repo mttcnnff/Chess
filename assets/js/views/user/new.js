@@ -18,7 +18,7 @@ export default class View extends MainView {
             type: 'POST',
             url: $('#new-user').attr('action'),
             data: formData,
-            success: (resp) => {Alerts.flashAlert("Success")},
+            success: (resp) => {Alerts.flashAlert("New user created!"); $('#new-user')[0].reset()},
             error: (resp) => {Alerts.flashDanger("Failed - " + resp.responseText)},
         })
     })

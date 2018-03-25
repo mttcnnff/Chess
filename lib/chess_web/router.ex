@@ -37,7 +37,7 @@ defmodule ChessWeb.Router do
     get "/", PageController, :index
     get "/game", PageController, :game
     resources "/users", UserController, except: [:edit]
-    
+
 
     post "/session", SessionController, :create
     delete "/session", SessionController, :delete
@@ -49,6 +49,7 @@ defmodule ChessWeb.Router do
     resources "/games", GameController, except: [:new, :edit]
     post "/join_named_game", GameController, :join_named_game
     post "/create_named_game", GameController, :create_named_game
+    post "/join_random_game", GameController, :join_random_game
 
 
   end

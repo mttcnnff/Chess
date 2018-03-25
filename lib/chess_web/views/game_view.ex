@@ -13,8 +13,8 @@ defmodule ChessWeb.GameView do
   def render("game.json", %{game: game}) do
     %{id: game.id,
       name: game.name,
-      white: game.white,
-      black: game.black,
+      white_id: game.white_id,
+      black_id: game.black_id,
       complete: game.complete}
   end
 end

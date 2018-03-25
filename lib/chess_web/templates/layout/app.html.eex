@@ -20,18 +20,25 @@
     <%= render ChessWeb.PageView, "navbar.html", assigns %>
     <div class="container-fluid">
         <%= if get_flash(@conn, :info) do %>
-          <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+          <div id="alert-block" class="d-none">
+            <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+          </div>
+        <% else %>
+          <div id="alert-block" class="d-none">
+            <p class="alert alert-info" role="alert"></p>
+          </div>
         <% end %>
-        <div id="alert-block" class="d-none">
-          <p class="alert alert-info" role="alert"></p>
-        </div>
 
         <%= if get_flash(@conn, :error) do %>
-          <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+          <div id="danger-block" class="d-none">
+            <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+          </div>
+        <% else %>
+          <div id="danger-block" class="d-none">
+            <p class="alert alert-danger" role="alert"></p>
+          </div>
         <% end %>
-        <div id="danger-block" class="d-none">
-          <p class="alert alert-danger" role="alert"></p>
-        </div>
+        
 
       <main role="main">
         <%= render @view_module, @view_template, assigns %>

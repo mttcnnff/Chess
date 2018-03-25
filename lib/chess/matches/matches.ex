@@ -21,6 +21,12 @@ defmodule Chess.Matches do
     Repo.all(Game)
   end
 
+  def list_games_by_user_id(user_id) do
+    query = from g in Game, where: g.black_id == ^user_id or g.white_id == ^user_id,
+    select: g
+    Repo.all(query) |> Repo.preload(:black) |> Repo.preload(:white) |> Repo.preload(:winner)
+  end
+
   @doc """
   Gets a single game.
 
@@ -35,9 +41,20 @@ defmodule Chess.Matches do
       ** (Ecto.NoResultsError)
 
   """
+  def get_game(id), do: Repo.get(Game, id) |> Repo.preload(:black)
   def get_game!(id), do: Repo.get!(Game, id)
   def get_game_by_name(name) do
     Repo.get_by(Game, name: name)
+  end
+
+  def get_named_game_to_join(user_id, name) do
+    query = from g in Game, where: g.black_id != ^user_id and is_nil(g.white_id) and g.name == ^name
+    query |> first(:id) |> Repo.one
+  end
+
+  def get_random_game_to_join(user_id) do
+    query = from g in Game, where: g.black_id != ^user_id and is_nil(g.white_id)
+    query |> first(:id) |> Repo.one
   end
 
   @doc """

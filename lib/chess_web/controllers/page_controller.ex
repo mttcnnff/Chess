@@ -6,8 +6,10 @@ defmodule ChessWeb.PageController do
   alias Chess.Matches.Game
 
   def index(conn, _params) do
-  	if conn.assigns.current_user do
-  		render conn, "home.html"
+    current_user = conn.assigns.current_user
+  	if current_user do
+      mygames = Matches.list_games_by_user_id(current_user.id);
+  		render conn, "home.html", games: mygames
   	else
   		render conn, "index.html"
   	end

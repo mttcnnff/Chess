@@ -17,5 +17,6 @@ defmodule Chess.Accounts.User do
     |> validate_required([:email, :name])
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
+    |> unique_constraint(:name)
   end
 end
