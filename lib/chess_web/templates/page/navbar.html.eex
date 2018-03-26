@@ -1,0 +1,11 @@
+<nav class="navbar sticky-top navbar-dark bg-dark">
+  <%= link "Chess", to: page_path(@conn, :index), class: "navbar-brand" %>
+  <%= if @current_user do %>
+        <span class="nav-item navbar-text">
+          Logged in as: <%= @current_user.name %> 
+        </span>
+        <div class="ml-auto nav-item">
+          <%= link "Log Out", to: "/session", method: :delete, class: "btn btn-outline-light btn-xs" %>
+        </div>
+   <% end %>
+</nav>

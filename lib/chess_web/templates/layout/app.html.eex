@@ -13,9 +13,10 @@
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
-  <body>
-    <div class="container">
-      
+  <body data-js-view="<%= view_name(@conn) %>" data-js-template="<%= template_name(@view_template) %>">
+    <%= render ChessWeb.PageView, "navbar.html", assigns %>
+    <div class="container-fluid">
+
       <%= if get_flash(@conn, :info) do %>
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <% end %>
@@ -30,5 +31,6 @@
 
     </div> <!-- /container -->
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <%= render_existing @view_module, "scripts.html", assigns %>
   </body>
 </html>

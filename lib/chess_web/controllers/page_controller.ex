@@ -9,4 +9,8 @@ defmodule ChessWeb.PageController do
     render conn, "game.html", game: params["game"]
   end
 
+  def lobby(conn, _params) do
+    render conn, "lobby.html"
+  end
+
 end

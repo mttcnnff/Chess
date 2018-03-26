@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Rect, Layer, Stage, Text } from 'react-konva';
+import { Rect, Layer, Stage, Text, Image } from 'react-konva';
 import ChessBoard from './components/chess_board';
 import ChessPieces from './components/chess_pieces';
 
@@ -17,11 +17,8 @@ let game = _.map(initialBoard, (piece, i) => {
     return {piece: piece, color: i < 32 ? "white" : "black", dir: i < 32 ? 1 : -1, beenMoved: false}
   }
 });
-console.log(game);
 
-
-
-export default function chess_init(root, channel) {
+export default function game_init(root, channel) {
   ReactDOM.render(<ChessGame channel={channel} />, root);
 }
 
@@ -42,7 +39,7 @@ class ChessGame extends React.Component {
 
   gotView(view) {
 		console.log("New view", view)
-		this.setState(view.game)
+		// this.setState(view.game)
 	}
 
   render() {

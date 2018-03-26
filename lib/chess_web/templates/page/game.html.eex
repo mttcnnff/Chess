@@ -4,8 +4,8 @@
     <script>
       window.gameName = "<%= @game %>";
     </script>
-    <div id="root">
-      <p>Chess is not yet loaded...</p>
+  <div id="root">
+      <p>Memory is not yet loaded...</p>
     </div>
   </div>
 </div>
