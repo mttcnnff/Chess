@@ -1,5 +1,5 @@
 <div class="row">
   <div class="col">
-    <h1>Sorry, that game wasn't found!</h1>
+    <h1>Sorry, a game by the name "<%= @game %>"" wasn't found!</h1>
   </div>
 </div>

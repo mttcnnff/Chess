@@ -78,12 +78,12 @@ class ChessGame extends React.Component {
     return (
       <div>
         <div className="row">
-          <div className="col">
+          <div className="d-flex col justify-content-center">
             <h2>{this.getTurnDisplay()}</h2>
           </div>
         </div>
         <div className="row">
-          <div className="col">
+          <div className="d-flex col justify-content-center">
             <Stage width={this.state.boardSize} height={this.state.boardSize}>
               <Layer>
                 <ChessBoard  boardSize={this.state.boardSize} />
@@ -98,6 +98,9 @@ class ChessGame extends React.Component {
                   />
               </Layer>
             </Stage>
+          </div>
+          <div className="d-flex col justify-content-center">
+            <h2>Taken Pieces</h2>
           </div>
         </div>
       </div>

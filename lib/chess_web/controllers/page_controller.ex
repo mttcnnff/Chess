@@ -18,16 +18,22 @@ defmodule ChessWeb.PageController do
   def game(conn, params) do
     game_name = params["game"]
     game = Matches.get_game_by_name(game_name)
-    current_user = conn.assigns.current_user
-    black_id = game.black_id
-    white_id = game.white_id
-    user_color = 
-      case current_user.id do
-        ^black_id -> "black"
-        ^white_id -> "white"
-      end
+    
     if game do
-      render conn |> put_gon(game_name: game_name) |> put_gon(user_color: user_color), "game.html", game: game_name
+      current_user = conn.assigns.current_user
+      black_id = game.black_id || nil
+      white_id = game.white_id || nil
+      user_color = 
+        case current_user.id do
+          ^black_id -> "black"
+          ^white_id -> "white"
+          _-> nil
+        end
+      if black_id == nil || white_id == nil do
+        render conn, "pregame.html", game: game_name
+      else
+        render conn |> put_gon(game_name: game_name) |> put_gon(user_color: user_color), "game.html", game: game_name
+      end
     else
       render conn, "nogame.html", game: game_name
     end

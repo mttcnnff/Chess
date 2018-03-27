@@ -6,6 +6,10 @@ defmodule Chess.Game do
 		%{
 			pieces: getInitialGamePieces(),
 			turn: "white",
+			takenPieces: %{
+				white: [],
+				black: []
+			}
 		}
 	end
 
