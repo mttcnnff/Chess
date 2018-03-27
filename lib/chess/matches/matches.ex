@@ -44,7 +44,7 @@ defmodule Chess.Matches do
   def get_game(id), do: Repo.get(Game, id) |> Repo.preload(:black)
   def get_game!(id), do: Repo.get!(Game, id)
   def get_game_by_name(name) do
-    Repo.get_by(Game, name: name)
+    Repo.get_by(Game, name: name) |> Repo.preload(:black) |> Repo.preload(:white) |> Repo.preload(:winner)
   end
 
   def get_named_game_to_join(user_id, name) do

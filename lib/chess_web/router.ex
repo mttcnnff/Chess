@@ -7,12 +7,13 @@ defmodule ChessWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :get_current_user
+    plug :put_user_token
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
-  def get_current_user(conn, _params) do
+  defp get_current_user(conn, _params) do
     # TODO: Move this function out of the router module.
     user_id = get_session(conn, :user_id)
     user = Chess.Accounts.get_user(user_id || -1)
@@ -27,6 +28,18 @@ defmodule ChessWeb.Router do
     |> assign(:current_user, user)
   end
 
+  defp put_user_token(conn, _) do
+       if current_user = conn.assigns[:current_user] do
+         token = Phoenix.Token.sign(conn, "user socket", current_user.id)
+         conn
+         |> assign(:user_token, token)
+         |> put_gon(user_token: token)
+       else
+         conn
+         |> put_gon(user_token: nil)
+       end
+     end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -35,7 +48,7 @@ defmodule ChessWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/game", PageController, :game
+    get "/game/:game", PageController, :game
     resources "/users", UserController, except: [:edit]
 
 

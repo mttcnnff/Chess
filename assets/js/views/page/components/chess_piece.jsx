@@ -62,7 +62,7 @@ export default function ChessPiece(props) {
     <Text text={props.piece} x={props.col * props.size} y={props.row * props.size} />
     pieceImage = <PieceImage 
                     key={props.color + props.piece + props.row + props.col}
-                    src={"images/pieces/" + props.color + "/" + props.piece + ".svg"} 
+                    src={"../images/pieces/" + props.color + "/" + props.piece + ".svg"} 
                     x={props.col * props.size} 
                     y={props.row * props.size} 
                     size={props.size}

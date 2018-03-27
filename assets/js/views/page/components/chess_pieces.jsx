@@ -9,7 +9,9 @@ export default function ChessPieces(props) {
       boardSize={props.boardSize} 
       spaceSize={props.boardSize/8} 
       pieces={props.pieces} 
-      validPieces={props.validPieces} />
+      validPieces={props.validPieces}
+      channel={props.channel}
+      callSocket={props.callSocket} />
   );
 }
 
@@ -28,32 +30,46 @@ class ChessPiecesComponent extends React.Component {
       boardSize: props.boardSize,
       spaceSize: props.spaceSize,
       pieces: props.pieces,
-      validPieces: props.validPieces,
-      selectedPiece: null
+      validPieces: [],
+      selectedPiece: null,
+      channel: props.channel,
+      callSocket: props.callSocket,
     };
 
     this.colorFilter = (num, color) => {
-      return (this.state.pieces[num] ? this.state.pieces[num].color : "") != color;
+      let val = (this.state.pieces[num] ? this.state.pieces[num].color : "") != color;
+      return val;
     }
 
     this.filterValidPieces = (piece, validPieces) => {
-      return _.chain(validPieces).filter(isValidCell).map(getSpace).filter((i) => this.colorFilter(i, piece.color)).value();
+      let vp = _.chain(validPieces).filter(isValidCell).map(getSpace).filter((i) => this.colorFilter(i, piece.color)).value();
+      return vp;
     }
 
-    this.traverseWithDelta = (origin, delta) => {
+    this.traverseWithDelta = (origin, delta, n) => {
       let traversedSpaces = [];
       let currCell = {row: origin.row + delta.row, col: origin.col + delta.col};
-      while (isValidCell(currCell)) {
+      let i = 0;
+      while (isValidCell(currCell) && i < n) {
         traversedSpaces = traversedSpaces.concat(currCell);
-        if (!_.isUndefined(this.state.pieces[getSpace(currCell)])) break;
+        if (!_.isNull(this.state.pieces[getSpace(currCell)])) break;
         currCell = {row: currCell.row + delta.row, col: currCell.col + delta.col};
+        i++;
       }
       return traversedSpaces;
     }
 
     this.validPieceFunctions = {
       P: (piece, row, col) => {
-        return piece.beenMoved ? [{row: row + piece.dir, col: col}] : [{row: row + 2*piece.dir, col: col}, {row: row + piece.dir, col: col}];
+        let moves = [];
+        if (_.isNull(this.state.pieces[getSpace({row: row + piece.dir, col: col})])) {
+          moves = piece.beenMoved ? this.traverseWithDelta({row: row, col: col}, {row: piece.dir, col: 0}, 1) : this.traverseWithDelta({row: row, col: col}, {row: piece.dir, col: 0}, 2);
+        }
+        let left = {row: row + piece.dir, col: col - 1};
+        let right = {row: row + piece.dir, col: col + 1};
+        if (!_.isNull(this.state.pieces[getSpace(left)])) moves = moves.concat(left);
+        if (!_.isNull(this.state.pieces[getSpace(right)])) moves = moves.concat(right);
+        return moves;
       },
       K: (piece, row, col) => {
         return [
@@ -80,16 +96,16 @@ class ChessPiecesComponent extends React.Component {
         ];
       },
       R: (piece, row, col) => {
-        return  this.traverseWithDelta({row: row, col: col}, {row: 1, col: 0})
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: 0}))
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: 0, col: 1}))
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: 0, col: -1}));
+        return  this.traverseWithDelta({row: row, col: col}, {row: 1, col: 0}, 20)
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: 0}, 20))
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: 0, col: 1}, 20))
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: 0, col: -1}, 20));
       },
       B: (piece, row, col) => {
-        return  this.traverseWithDelta({row: row, col: col}, {row: 1, col: 1})
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: -1}))
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: 1, col: -1}))
-                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: 1}));
+        return  this.traverseWithDelta({row: row, col: col}, {row: 1, col: 1}, 20)
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: -1}, 20))
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: 1, col: -1}, 20))
+                .concat(this.traverseWithDelta({row: row, col: col}, {row: -1, col: 1}, 20));
       },
       Q: (piece, row, col) => {
         return  this.validPieceFunctions.R(piece, row, col)
@@ -121,24 +137,16 @@ class ChessPiecesComponent extends React.Component {
   }
 
   move(spaceFrom, spaceTo) {
-    console.log(this.props);
-    let newPieces = this.state.pieces.slice();
-    newPieces[spaceFrom].beenMoved = true;
-    let temp = newPieces[spaceTo];
-    newPieces[spaceTo] = newPieces[spaceFrom];
-    newPieces[spaceFrom] = temp;
-    this.setState({pieces: newPieces, selectedPiece: null});
-    console.log(this.state.pieces[spaceFrom]);
-    console.log(this.state.pieces[spaceTo]);
+    this.state.callSocket("move", {spaceFrom: spaceFrom, spaceTo: spaceTo});
   }
 
 
   handleClick(row, col) {
-    if (!isValidCell({row: row, col: col})) return;
+    let current_user = window.Gon.getAsset('current_user');
+    if (!isValidCell({row: row, col: col}) || _.isNull(current_user)) return;
     let cell = getSpace({row: row, col: col});
 
     if (this.state.validPieces.includes(cell)) {
-      console.log("Move");
       this.move(this.state.selectedPiece, cell);
     } else if (this.state.selectedPiece) {
       this.setState({selectedPiece: null});
@@ -150,6 +158,7 @@ class ChessPiecesComponent extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     console.log(nextProps);
+    this.setState(nextProps);
   }
 
   render() {

@@ -18,7 +18,6 @@ class ChessBoardComponent extends React.Component {
   }
 
   render() {
-    console.log("Rendering Board.")
     let spaces = _.range(64).map((i) => {
       const row = Math.floor(i/8);
       const col = i%8;

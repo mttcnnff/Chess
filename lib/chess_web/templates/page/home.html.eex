@@ -45,7 +45,7 @@
 						<%= if game.complete == true do %>
 							<td>Winner: <%= game.winner.name %></td>
 						<% else %>
-							<td><button class="btn btn-success">Go Play</button></td>
+							<td><%= link "Play", to: page_path(@conn, :game, game.name), class: "btn btn-success btn-xs"%></td>
 						<% end %>
 						</tr>
 					<% end %>

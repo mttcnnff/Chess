@@ -3,9 +3,28 @@
 
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/web/endpoint.ex":
-import {Socket} from "phoenix"
+import {Socket} from "phoenix";
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
+//let socket = new Socket("/socket", {params: {token: window.userToken}});
+
+export default class socket {
+  	constructor() {
+  		this.socket = new Socket("/socket", {params: {token: window.Gon.getAsset('user_token')}});
+  		this.socket.connect()
+  	}
+
+    getChannel(topic) {
+      return this.socket.channel(topic, {});
+    }
+
+  	joinChannel(topic) {
+  		let channel = this.socket.channel(topic, {hi: "hello"})
+  		channel.join()
+  	  		.receive("ok", resp => { console.log("Joined successfully", resp)})
+  	  		.receive("error", resp => { console.log("Unable to join", resp) })
+      return channel;
+	}
+};
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -38,25 +57,25 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // You will need to verify the user token in the "connect/2" function
 // in "lib/web/channels/user_socket.ex":
 //
-//     def connect(%{"token" => token}, socket) do
-//       # max_age: 1209600 is equivalent to two weeks in seconds
-//       case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
-//         {:ok, user_id} ->
-//           {:ok, assign(socket, :user, user_id)}
-//         {:error, reason} ->
-//           :error
-//       end
-//     end
+    // def connect(%{"token" => token}, socket) do
+    //   # max_age: 1209600 is equivalent to two weeks in seconds
+    //   case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
+    //     {:ok, user_id} ->
+    //       {:ok, assign(socket, :user, user_id)}
+    //     {:error, reason} ->
+    //       :error
+    //   end
+    // end
 //
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 
-socket.connect()
+//socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
-channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
-  .receive("error", resp => { console.log("Unable to join", resp) })
+// let channel = socket.channel("topic:subtopic", {})
+// channel.join()
+//   .receive("ok", resp => { console.log("Joined successfully", resp) })
+//   .receive("error", resp => { console.log("Unable to join", resp) })
 
-export default socket
+// export default socket

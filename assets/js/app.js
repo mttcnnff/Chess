@@ -12,17 +12,15 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html";
-import chess_init from "./chess";
 import MainView from './views/main';
 import loadView from './views/loader';
+
 
 
 // Import local files
 //
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
-
-// import socket from "./socket"
 
 // web/static/js/app.js
 
@@ -43,20 +41,9 @@ function handleDOMContentLoaded() {
   window.currentView = view;
 }
 
-function hi() {
-  console.log("HI");
-}
-
 function handleDocumentUnload() {
   window.currentView.unmount();
 }
 
 window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
 window.addEventListener('unload', handleDocumentUnload, false);
-
-function start() {
-	let root = document.getElementById('root');
-	if (root) {chess_init(root)};
-}
-
-$(start);
