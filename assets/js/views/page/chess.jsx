@@ -65,8 +65,8 @@ class ChessGame extends React.Component {
 
   getTurnDisplay() {
     if (!_.isNull(window.Gon.getAsset('current_user'))) {
-      console.log(this.state.turn);
-      console.log(window.Gon.getAsset('user_color'));
+      console.log("Turn: " + this.state.turn);
+      console.log("UserColor: " + window.Gon.getAsset('user_color'));
       return this.state.turn == window.Gon.getAsset('user_color') ? "Your move!" : "Waiting for your opponent...";
     } else {
       return "Spectating.";

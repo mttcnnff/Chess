@@ -22,7 +22,6 @@ defmodule ChessWeb.GamesChannel do
     # Phoenix.Token.sign(conn, "user socket", current_user.id)
     case Phoenix.Token.verify(socket, "user socket", token, max_age: max_age) do
       {:ok, user_id} ->
-        IO.puts("SOCKET TURN: #{inspect(socket.assigns[:game].turn)}")
         name = socket.assigns[:name]
         case Game.move(user_id, name, Chess.GameBackup.load(name), spaceFrom, spaceTo) do
           {:ok, game} -> 

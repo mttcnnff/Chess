@@ -23,11 +23,9 @@ defmodule ChessWeb.PageController do
     white_id = game.white_id
     user_color = 
       case current_user.id do
-        black_id -> "black"
-        white_id -> "white"
+        ^black_id -> "black"
+        ^white_id -> "white"
       end
-
-
     if game do
       render conn |> put_gon(game_name: game_name) |> put_gon(user_color: user_color), "game.html", game: game_name
     else
