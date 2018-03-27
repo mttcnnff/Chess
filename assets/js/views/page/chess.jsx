@@ -41,6 +41,7 @@ class ChessGame extends React.Component {
           pieces: resp.game.pieces,
           turn: resp.game.turn,
           validPieces: [],
+          gameStatus: resp.game.status
         });
       })
       .receive("error", resp => { console.log("Unable to join", resp) });
@@ -51,13 +52,15 @@ class ChessGame extends React.Component {
         pieces: resp.pieces,
         turn: resp.turn,
         validPieces: [],
+        gameStatus: resp.status,
       });
 })
   }
 
   callSocket(functionName, payload) {
-    if (!_.isNull(window.Gon.getAsset('user_token'))) {
-      payload["user_token"] = window.Gon.getAsset('user_token');
+    let user_token = window.Gon.getAsset('user_token');
+    if (!_.isNull(user_token)) {
+      payload["user_token"] = user_token;
       this.state.channel.push(functionName, payload)
         .receive("error", resp => {console.log(resp); Alerts.flashDanger(resp.msg);})
       }
@@ -65,15 +68,25 @@ class ChessGame extends React.Component {
 
   getTurnDisplay() {
     if (!_.isNull(window.Gon.getAsset('current_user'))) {
-      console.log("Turn: " + this.state.turn);
-      console.log("UserColor: " + window.Gon.getAsset('user_color'));
       return this.state.turn == window.Gon.getAsset('user_color') ? "Your move!" : "Waiting for your opponent...";
     } else {
       return "Spectating.";
     }
   }
 
+  forfeit() {
+    if (this.state.gameStatus !== "ongoing") return;
+    this.callSocket("forfeit", {});
+  }
+
   render() {
+    let current_user = window.Gon.getAsset("current_user");
+    let black_player = window.Gon.getAsset("black_player");
+    let white_player = window.Gon.getAsset("white_player");
+    let forfeitButton = 
+    ((current_user == black_player || current_user == white_player) && this.state.gameStatus == "ongoing") 
+    ? <button className="btn btn-danger" onClick={() =>this.forfeit()}>Forfeit</button> 
+    : "";
 
     return (
       <div>
@@ -94,15 +107,27 @@ class ChessGame extends React.Component {
                   callSocket={(functionName, payload) => this.callSocket(functionName, payload)}
                   boardSize={this.state.boardSize} 
                   pieces={this.state.pieces} 
-                  validPieces={this.state.validPieces} 
+                  validPieces={this.state.validPieces}
+                  gameStatus={this.state.gameStatus}
                   />
               </Layer>
             </Stage>
           </div>
-          <div className="d-flex col justify-content-center">
-            <h2>Taken Pieces</h2>
-          </div>
         </div>
+        <div className="row">
+            <div className="d-flex col justify-content-center">
+              <h4>{current_user ? "Your color: " + window.Gon.getAsset("user_color") : ""}</h4>
+            </div>
+            <div className="d-flex col justify-content-center">
+              <h4>{"Game Status: " + this.state.gameStatus}</h4>
+            </div>
+        </div>
+        <div className="row">
+            <div className="d-flex col justify-content-center">
+             { forfeitButton }
+            </div>
+        </div>
+
       </div>
     );
   }

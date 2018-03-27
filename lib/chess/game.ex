@@ -6,10 +6,7 @@ defmodule Chess.Game do
 		%{
 			pieces: getInitialGamePieces(),
 			turn: "white",
-			takenPieces: %{
-				white: [],
-				black: []
-			}
+			status: "ongoing"
 		}
 	end
 
@@ -38,9 +35,11 @@ defmodule Chess.Game do
 	def client_view(game) do
 		pieces = game.pieces
 		turn = game.turn
+		status = game.status
 		%{
 			pieces: pieces,
-			turn: turn
+			turn: turn,
+			status: status
 		}
 	end
 
@@ -152,21 +151,73 @@ defmodule Chess.Game do
 
 	end
 
+	defp checkForPromotion(pieces, spaceTo) do
+		piece = pieces |> Enum.at(spaceTo)
+		toCell = getCell(spaceTo)
+		if toCell.row == 0 && piece.color == "black" || toCell.row == 7 && piece.color == "white" do
+			pieces
+			|> List.update_at(spaceTo, fn(x) -> piece |> Map.put(:piece, "Q") end)
+		else
+			pieces
+		end
+	end
+
+	defp checkPieceCount(pieces) do
+		actualPieces = pieces |> Enum.filter(fn(piece) -> !is_nil(piece) end)
+		blackPieces = actualPieces |> Enum.filter(fn(piece) -> piece.color == "black" end)
+		whitePieces = actualPieces |> Enum.filter(fn(piece) -> piece.color == "white" end)
+
+		cond do
+			length(blackPieces) < 2 -> {:error, ""}
+			length(whitePieces) < 2
+			true -> {:ok, ""}
+		end
+	end
+
+	defp checkForGameEnd(game, game_name) do
+		pieces = game.pieces
+		actualPieces = pieces |> Enum.filter(fn(piece) -> !is_nil(piece) end)
+		blackPieces = actualPieces |> Enum.filter(fn(piece) -> piece.color == "black" end)
+		whitePieces = actualPieces |> Enum.filter(fn(piece) -> piece.color == "white" end)
+		blackKing = blackPieces |> Enum.find(fn(piece) -> piece.piece == "K" end)
+		IO.puts("Black King: #{inspect(blackKing)}")
+		IO.puts("Black Pieces: #{inspect(length(blackPieces))}")
+		blackPieces |> Enum.each(fn(x) -> IO.puts("#{inspect(x)}") end)
+		whiteKing = whitePieces |> Enum.find(fn(piece) -> piece.piece == "K" end)
+		IO.puts("White King: #{inspect(whiteKing)}")
+		IO.puts("White Pieces: #{inspect(length(whitePieces))}")
+
+		cond do
+			length(blackPieces) < 2 || is_nil(blackKing) ->
+				endGameWhite(game_name, game)
+			length(whitePieces) < 2 || is_nil(whiteKing) ->
+				endGameBlack(game_name, game)
+			true -> 
+				game
+		end
+	
+	end
+
 	defp take(pieces, spaceFrom, spaceTo) do
 		fromPiece = pieces |> Enum.at(spaceFrom)
 		toPiece = pieces |> Enum.at(spaceTo)
+		pieces =
+			case toPiece do
+				nil ->
+					pieces
+					|> List.update_at(spaceFrom, fn(x) -> toPiece end)
+					|> List.update_at(spaceTo, fn(x) -> Map.put(fromPiece, :beenMoved, true) end)
+				_ ->
+					pieces
+					|> List.update_at(spaceFrom, fn(x) -> nil end)
+					|> List.update_at(spaceTo, fn(x) -> fromPiece |> Map.put(:beenMoved, true) end)
+			end
 
-		if toPiece == nil do
-			pieces
-			|> List.update_at(spaceFrom, fn(x) -> toPiece end)
-			|> List.update_at(spaceTo, fn(x) -> Map.put(fromPiece, :beenMoved, true) end)
-		else
-			pieces
-			|> List.update_at(spaceFrom, fn(x) -> nil end)
-			|> List.update_at(spaceTo, fn(x) -> fromPiece |> Map.put(:beenMoved, true) end)
-		end
-
-		
+		pieces = 
+			case fromPiece.piece do
+				"P" -> pieces |> checkForPromotion(spaceTo)
+				_ -> pieces
+			end
 	end
 
 	defp isMoveValid(pieces, spaceFrom, spaceTo) do
@@ -175,7 +226,7 @@ defmodule Chess.Game do
 
 		with	{:ok, msg} <- validSpace(fromPiece, toPiece),
 				{:ok, msg} <- validMove(pieces, spaceFrom, spaceTo)
-		do
+		do 
 			{:ok, ""}
 		else
 			{:error, msg} -> {:error, msg}
@@ -224,15 +275,66 @@ defmodule Chess.Game do
 		with	{:ok, msg} <- playerCheck(user_id, spaceFrom, game, game_name),
 				{:ok, msg} <- isMoveValid(game.pieces, spaceFrom, spaceTo)
 		do
-				game = game
-				|> Map.put(:pieces, game.pieces |> take(spaceFrom, spaceTo))
-				|> Map.put(:turn, otherColor(game.turn))
-				IO.puts("#{inspect(game.turn)}")
+				game = 
+					game
+					|> Map.put(:pieces, game.pieces |> take(spaceFrom, spaceTo))
+					|> Map.put(:turn, otherColor(game.turn))
+					|> checkForGameEnd(game_name)
 				{:ok, game}
 
 		else
 			{:error, msg} -> {:error, msg}
 		end
 	end
+
+	defp endGame(winner_id, game_name, game) do
+		dbgame = Matches.get_game_by_name(game_name)
+		black_id = dbgame.black_id
+		white_id = dbgame.white_id
+
+		case winner_id do
+			^black_id ->
+				Matches.update_game(dbgame, %{winner_id: black_id, complete: true})
+				game |> Map.put(:status, "completed")
+			^white_id ->
+				Matches.update_game(dbgame, %{winner_id: white_id, complete: true})
+				game |> Map.put(:status, "completed")
+			_ -> game
+		end
+	end
+
+	defp endGameWhite(game_name, game) do
+		dbgame = Matches.get_game_by_name(game_name)
+		black_id = dbgame.black_id
+		white_id = dbgame.white_id
+
+		Matches.update_game(dbgame, %{winner_id: white_id, complete: true})
+		game |> Map.put(:status, "completed")
+	end
+
+	defp endGameBlack(game_name, game) do
+		dbgame = Matches.get_game_by_name(game_name)
+		black_id = dbgame.black_id
+		white_id = dbgame.white_id
+
+		Matches.update_game(dbgame, %{winner_id: black_id, complete: true})
+		game |> Map.put(:status, "completed")
+	end
+
+	def forfeit(user_id, game_name, game) do
+		dbgame = Matches.get_game_by_name(game_name)
+		black_id = dbgame.black_id
+		white_id = dbgame.white_id
+
+		case user_id do
+			^black_id ->
+				endGame(white_id, game_name, game)
+			^white_id ->
+				endGame(black_id, game_name, game)
+			_ -> game
+		end
+	end
+
+	
 
 end

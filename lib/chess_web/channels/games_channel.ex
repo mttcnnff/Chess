@@ -37,6 +37,21 @@ defmodule ChessWeb.GamesChannel do
     end      
   end
 
+  def handle_in("forfeit", %{"user_token" => token}, socket) do
+    # Phoenix.Token.sign(conn, "user socket", current_user.id)
+    case Phoenix.Token.verify(socket, "user socket", token, max_age: max_age) do
+      {:ok, user_id} ->
+        name = socket.assigns[:name]
+        game = Game.forfeit(user_id, name, Chess.GameBackup.load(name))
+        Chess.GameBackup.save(socket.assigns[:name], game)
+        socket = assign(socket, :game, game)
+        broadcast(socket, "game_update", game)
+        {:reply, {:ok, %{msg: "Game forfeited."}}, socket}
+      {:error, reason} -> 
+          {:reply, {:error, %{msg: reason}}, socket}
+    end      
+  end
+
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   def handle_in("ping", payload, socket) do

@@ -11,7 +11,8 @@ export default function ChessPieces(props) {
       pieces={props.pieces} 
       validPieces={props.validPieces}
       channel={props.channel}
-      callSocket={props.callSocket} />
+      callSocket={props.callSocket} 
+      gameStatus={props.gameStatus} />
   );
 }
 
@@ -34,6 +35,7 @@ class ChessPiecesComponent extends React.Component {
       selectedPiece: null,
       channel: props.channel,
       callSocket: props.callSocket,
+      gameStatus: props.gameStatus
     };
 
     this.colorFilter = (num, color) => {
@@ -116,6 +118,7 @@ class ChessPiecesComponent extends React.Component {
   }
 
   setValidPieces(row, col) {
+    if (this.state.gameStatus !== "ongoing") return;
     let piece = this.state.pieces[getSpace({row: row, col: col})];
     if (_.isUndefined(piece)) {
       this.setState({validPieces: []});
@@ -143,7 +146,7 @@ class ChessPiecesComponent extends React.Component {
 
   handleClick(row, col) {
     let current_user = window.Gon.getAsset('current_user');
-    if (!isValidCell({row: row, col: col}) || _.isNull(current_user)) return;
+    if (!isValidCell({row: row, col: col}) || _.isNull(current_user) || this.state.gameStatus !== "ongoing") return;
     let cell = getSpace({row: row, col: col});
 
     if (this.state.validPieces.includes(cell)) {
